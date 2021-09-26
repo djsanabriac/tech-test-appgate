@@ -47,7 +47,7 @@ public class GeneralResponse<T> {
 
     public Map<String, Object> toMap() {
         HashMap<String, Object> toReturn = new HashMap<String, Object>();
-        toReturn.put("success", true);
+        toReturn.put("success", success);
         toReturn.put("message", message);
         toReturn.put("data", data);
         return toReturn;
