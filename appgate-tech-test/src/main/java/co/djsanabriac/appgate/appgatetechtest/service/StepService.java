@@ -2,46 +2,88 @@ package co.djsanabriac.appgate.appgatetechtest.service;
 
 import co.djsanabriac.appgate.appgatetechtest.controller.OperationController;
 import co.djsanabriac.appgate.appgatetechtest.model.dto.StepDTO;
+import co.djsanabriac.appgate.appgatetechtest.model.entity.Session;
+import co.djsanabriac.appgate.appgatetechtest.model.entity.Step;
+import co.djsanabriac.appgate.appgatetechtest.repository.SessionRepository;
+import co.djsanabriac.appgate.appgatetechtest.repository.StepRepository;
+import org.hibernate.cache.spi.entry.StructuredCacheEntry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.NotSupportedException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.UUID;
 
 @Service
 public class StepService {
 
     Logger logger = LoggerFactory.getLogger(StepService.class);
 
-    public static List<StepDTO> processStep(String sid, StepDTO step, List<StepDTO> stepDTOS) {
+    @Autowired
+    private SessionRepository sessionRepository;
+    @Autowired
+    private StepRepository stepRepository;
 
-        switch (step.getType().toLowerCase()){
+    public String getSession(){
+
+        String uuid = null;
+
+        do {
+            uuid = UUID.randomUUID().toString();
+        }while ( sessionRepository.getBySid(uuid) != null );
+
+        Session s = new Session();
+        s.setSid(uuid);
+        sessionRepository.save(s);
+
+        return uuid;
+
+    }
+
+    public List<StepDTO> processStep(String sid, StepDTO stepDTO) {
+
+        switch (stepDTO.getType().toLowerCase()){
             case "operand":
-                step.setExecuted(false);
-                stepDTOS.add(step);
+                saveStep(sid, stepDTO);
                 break;
             case "operation":
-                step.setExecuted(false);
-                stepDTOS.add(step);
-                processOperation(stepDTOS);
+                saveStep(sid, stepDTO);
+                processOperation(sid);
                 break;
             default:
                 break;
 
         }
 
+        List<Step> steps = stepRepository.getAllBySessionSid(sid);
+
+        List<StepDTO> stepDTOS = new ArrayList<>();
+
+        steps.forEach(step -> { stepDTOS.add(new StepDTO(step.getType(),step.getValue(),step.getExecuted())); });
+
         return stepDTOS;
     }
 
-    private static void processOperation(List<StepDTO> stepDTOS) {
+    private void saveStep(String sid, StepDTO stepDTO) {
+        stepDTO.setExecuted(false);
+        Step step = new Step().fromStepDTO(stepDTO);
+        step.setSid(sessionRepository.getBySid(sid));
+        stepRepository.save(step);
+    }
 
-        StepDTO operation = stepDTOS.get(stepDTOS.size()-1);
+    private void processOperation(String sid) {
+
+        List<Step> steps = stepRepository.getAllBySessionSid(sid);
+
+        Step operation = steps.get(steps.size()-1);
         Double result = null;
-        StepDTO toAdd = null;
-        for (StepDTO s :
-                stepDTOS) {
+        Step toAdd = null;
+        for (Step s :
+                steps) {
 
             if( s.getExecuted() ) continue;
 
@@ -54,7 +96,7 @@ public class StepService {
             if( s.equals(operation) ) break;
 
             if( s.getType().equals("exception") ){
-                toAdd = new StepDTO("exception", "Operation not supported", true);
+                toAdd = new Step(null, "exception", "Operation not supported", false, sessionRepository.getBySid(sid));
                 operation.setExecuted(true);
                 operation = toAdd;
                 break;
@@ -69,7 +111,7 @@ public class StepService {
             try{
                result = executeOperation(s, result, operation);
             }catch (NotSupportedException e){
-                toAdd = new StepDTO("exception", "Operation not supported", true);
+                toAdd = new Step(null,"exception", "Operation not supported", true, sessionRepository.getBySid(sid));
                 operation.setExecuted(true);
                 operation = toAdd;
             }
@@ -81,18 +123,18 @@ public class StepService {
         operation.setExecuted(true);
 
         if(toAdd != null) {
-            stepDTOS.add(toAdd);
+            stepRepository.save(toAdd);
             return;
         }
 
         if( result != null ){
-            toAdd = new StepDTO("result", result.toString(), false);
-            stepDTOS.add(toAdd);
+            toAdd = new Step(null,"result", result.toString(), false, sessionRepository.getBySid(sid));
+            stepRepository.save(toAdd);
         }
 
     }
 
-    private static Double executeOperation(StepDTO s, Double result, StepDTO operation) throws NotSupportedException {
+    private static Double executeOperation(Step s, Double result, Step operation) throws NotSupportedException {
 
         Double value = Double.parseDouble(s.getValue());
 

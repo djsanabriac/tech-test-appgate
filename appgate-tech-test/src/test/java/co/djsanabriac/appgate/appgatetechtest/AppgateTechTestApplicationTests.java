@@ -1,40 +1,47 @@
 package co.djsanabriac.appgate.appgatetechtest;
 
 import co.djsanabriac.appgate.appgatetechtest.controller.OperationController;
-import co.djsanabriac.appgate.appgatetechtest.model.dto.GeneralResponse;
-import co.djsanabriac.appgate.appgatetechtest.model.dto.StepDTO;
+import co.djsanabriac.appgate.appgatetechtest.repository.SessionRepository;
+import co.djsanabriac.appgate.appgatetechtest.repository.StepRepository;
 import co.djsanabriac.appgate.appgatetechtest.service.StepService;
 import com.jayway.jsonpath.JsonPath;
-import org.junit.Assert;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
+import org.springframework.boot.test.autoconfigure.orm.jpa.AutoConfigureDataJpa;
+import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
-import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
-import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 import static org.junit.Assert.*;
 
 @RunWith(SpringRunner.class)
-@WebMvcTest({OperationController.class,StepService.class})
+@WebMvcTest({OperationController.class,StepService.class,SessionRepository.class,StepRepository.class})
+@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
+@AutoConfigureDataJpa
 class AppgateTechTestApplicationTests {
 
 	@Autowired
 	private MockMvc mvc;
 
 	@Autowired
-	private OperationController controller;
+	private StepRepository stepRepository;
+
+	@Autowired
+	private SessionRepository sessionRepository;
 
 	@Autowired
 	private StepService stepService;
+
+	@Autowired
+	private OperationController controller;
 
 	@Test
 	void contextLoads() {

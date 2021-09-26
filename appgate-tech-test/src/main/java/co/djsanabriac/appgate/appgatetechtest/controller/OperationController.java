@@ -2,6 +2,8 @@ package co.djsanabriac.appgate.appgatetechtest.controller;
 
 import co.djsanabriac.appgate.appgatetechtest.model.dto.GeneralResponse;
 import co.djsanabriac.appgate.appgatetechtest.model.dto.StepDTO;
+import co.djsanabriac.appgate.appgatetechtest.model.entity.Step;
+import co.djsanabriac.appgate.appgatetechtest.repository.SessionRepository;
 import co.djsanabriac.appgate.appgatetechtest.service.StepService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,32 +25,29 @@ public class OperationController {
     @Autowired
     StepService stepService;
 
+    @Autowired
+    SessionRepository sessionRepository;
+
     @GetMapping("/operation/session")
     ResponseEntity getSession(){
-
-        String uuid = null;
-        do {
-            uuid = UUID.randomUUID().toString();
-        }while ( sessionStepsMap.keySet().contains(uuid) );
-
-        sessionStepsMap.put(uuid, new ArrayList<>());
-        logger.info(sessionStepsMap.toString());
-
-        return ResponseEntity.ok(new GeneralResponse<>(true, "OK", uuid).toMap());
+        String uuid = stepService.getSession();
+        return ResponseEntity.ok(
+                new GeneralResponse<>(uuid != null,
+                        uuid != null ? "OK": "FAILED_SESSION", uuid).toMap());
     }
 
     @PostMapping("/operation/step")
     ResponseEntity step(@RequestHeader("sid") String sid, @RequestBody(required = true) StepDTO step){
 
-        if( !sessionStepsMap.keySet().contains(sid) )
+        if( sessionRepository.getBySid(sid) == null )
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                 .body(new GeneralResponse<>(false, "INVALID_SID").toMap());
 
-        stepService.processStep(sid, step, sessionStepsMap.get(sid));
+        List<StepDTO> steps = stepService.processStep(sid, step);
 
-        logger.info(sessionStepsMap.toString());
+        logger.info(steps.toString());
 
-        return ResponseEntity.ok(new GeneralResponse<>(true, "OK",sessionStepsMap.get(sid)).toMap());
+        return ResponseEntity.ok(new GeneralResponse<>(true, "OK", steps).toMap());
     }
 
 }
