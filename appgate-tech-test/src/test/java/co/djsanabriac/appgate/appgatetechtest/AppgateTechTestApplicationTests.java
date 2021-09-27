@@ -22,11 +22,11 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 import static org.junit.Assert.*;
 
-@RunWith(SpringRunner.class)
+//@RunWith(SpringRunner.class)
 @WebMvcTest({OperationController.class,StepService.class,SessionRepository.class,StepRepository.class})
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @AutoConfigureDataJpa
-class AppgateTechTestApplicationTests {
+public class AppgateTechTestApplicationTests {
 
 	@Autowired
 	private MockMvc mvc;
@@ -57,7 +57,7 @@ class AppgateTechTestApplicationTests {
 						.get("/operation/session")
 						.contentType(MediaType.APPLICATION_JSON))
 				.andExpect(MockMvcResultMatchers.status().isOk())
-				.andExpect(MockMvcResultMatchers.jsonPath("$.success").value(Boolean.FALSE))
+				.andExpect(MockMvcResultMatchers.jsonPath("$.success").value(Boolean.TRUE))
 				.andExpect(MockMvcResultMatchers.jsonPath("$.message").value("OK"))
 				.andExpect(MockMvcResultMatchers.jsonPath("$.data").isString())
 		;
