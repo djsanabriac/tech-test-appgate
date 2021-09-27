@@ -65,6 +65,7 @@ public class OperationController {
     @GetMapping("/operation/steps_by_session/{sid}")
     ResponseEntity getStepsBySessionList(@PathVariable(name = "sid") String sid){
 
+        logger.info("[CUSTOM INFO] Test");
         List<StepDTO> stepDTOS = stepService.getStepDTOS(sid);
 
         return ResponseEntity.ok(
