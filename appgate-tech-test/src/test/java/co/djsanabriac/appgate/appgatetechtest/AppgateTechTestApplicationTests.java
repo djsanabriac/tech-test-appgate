@@ -57,7 +57,7 @@ class AppgateTechTestApplicationTests {
 						.get("/operation/session")
 						.contentType(MediaType.APPLICATION_JSON))
 				.andExpect(MockMvcResultMatchers.status().isOk())
-				.andExpect(MockMvcResultMatchers.jsonPath("$.success").value(Boolean.TRUE))
+				.andExpect(MockMvcResultMatchers.jsonPath("$.success").value(Boolean.FALSE))
 				.andExpect(MockMvcResultMatchers.jsonPath("$.message").value("OK"))
 				.andExpect(MockMvcResultMatchers.jsonPath("$.data").isString())
 		;
