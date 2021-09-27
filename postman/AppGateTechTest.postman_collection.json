@@ -43,6 +43,190 @@
 				}
 			},
 			"response": []
+		},
+		{
+			"name": "/operation/step OPERAND",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "sid",
+						"value": "{{token}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"type\": \"operand\",\r\n    \"value\": \"20\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{host}}/operation/step",
+					"host": [
+						"{{host}}"
+					],
+					"path": [
+						"operation",
+						"step"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "/operation/step OPERATION",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "sid",
+						"value": "{{token}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"type\": \"operation\",\r\n    \"value\": \"multiplication\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{host}}/operation/step",
+					"host": [
+						"{{host}}"
+					],
+					"path": [
+						"operation",
+						"step"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "/operation/session_list",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"var jsonData = JSON.parse(responseBody);\r",
+							"postman.setEnvironmentVariable(\"token_search\", jsonData.data[3].sid);"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{host}}/operation/session_list",
+					"host": [
+						"{{host}}"
+					],
+					"path": [
+						"operation",
+						"session_list"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "/operation/steps_by_session",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{host}}/operation/steps_by_session/{{token_search}}",
+					"host": [
+						"{{host}}"
+					],
+					"path": [
+						"operation",
+						"steps_by_session",
+						"{{token_search}}"
+					]
+				}
+			},
+			"response": []
 		}
 	]
 }

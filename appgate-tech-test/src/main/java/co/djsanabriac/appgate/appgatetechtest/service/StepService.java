@@ -59,12 +59,17 @@ public class StepService {
 
         }
 
+        List<StepDTO> stepDTOS = getStepDTOS(sid);
+
+        return stepDTOS;
+    }
+
+    public List<StepDTO> getStepDTOS(String sid) {
         List<Step> steps = stepRepository.getAllBySessionSid(sid);
 
         List<StepDTO> stepDTOS = new ArrayList<>();
 
         steps.forEach(step -> { stepDTOS.add(new StepDTO(step.getType(),step.getValue(),step.getExecuted())); });
-
         return stepDTOS;
     }
 

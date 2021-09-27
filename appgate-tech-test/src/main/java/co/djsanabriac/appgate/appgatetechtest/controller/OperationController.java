@@ -2,6 +2,7 @@ package co.djsanabriac.appgate.appgatetechtest.controller;
 
 import co.djsanabriac.appgate.appgatetechtest.model.dto.GeneralResponse;
 import co.djsanabriac.appgate.appgatetechtest.model.dto.StepDTO;
+import co.djsanabriac.appgate.appgatetechtest.model.entity.Session;
 import co.djsanabriac.appgate.appgatetechtest.model.entity.Step;
 import co.djsanabriac.appgate.appgatetechtest.repository.SessionRepository;
 import co.djsanabriac.appgate.appgatetechtest.service.StepService;
@@ -48,6 +49,27 @@ public class OperationController {
         logger.info(steps.toString());
 
         return ResponseEntity.ok(new GeneralResponse<>(true, "OK", steps).toMap());
+    }
+
+    @GetMapping("/operation/session_list")
+    ResponseEntity getSessionList(){
+
+        List<Session> sessionList = new ArrayList<>();
+        sessionRepository.findAllByOrderByIdAsc().forEach(sessionList::add);
+
+        return ResponseEntity.ok(
+                new GeneralResponse<>(true,
+                        "OK", sessionList).toMap());
+    }
+
+    @GetMapping("/operation/steps_by_session/{sid}")
+    ResponseEntity getStepsBySessionList(@PathVariable(name = "sid") String sid){
+
+        List<StepDTO> stepDTOS = stepService.getStepDTOS(sid);
+
+        return ResponseEntity.ok(
+                new GeneralResponse<>(true,
+                        "OK", stepDTOS).toMap());
     }
 
 }
